@@ -2,7 +2,8 @@ name: Release
 
 on:
   push:
-    tags: ["v*"]
+    tags:
+      - 'v*'
 
 permissions:
   contents: write
@@ -57,16 +58,54 @@ jobs:
           name: gg-${{ matrix.target }}
           path: gg-*.*
 
-  release:
-    name: Create Release
-    needs: build
+  publish-crates:
+    name: Publish to crates.io
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: dtolnay/rust-toolchain@4be9e76fd7c4901c61fb841f559994984270fce7 # stable
+      - run: cargo publish --token ${{ secrets.CARGO_REGISTRY_TOKEN }}
+
+  release:
+    name: Create Release
+    needs: [build, publish-crates]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          fetch-depth: 0
+      - name: Install git-cliff
+        uses: taiki-e/install-action@git-cliff
+      - name: Generate release notes
+        run: git cliff --latest --strip header > RELEASE_NOTES.md
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           merge-multiple: true
-      - uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b # v2
+      - name: Create Release
+        uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b # v2
         with:
-          generate_release_notes: true
           files: gg-*.*
+          body_path: RELEASE_NOTES.md
+
+  update-changelog:
+    name: Update CHANGELOG
+    needs: release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          fetch-depth: 0
+          ref: main
+      - name: Install git-cliff
+        uses: taiki-e/install-action@git-cliff
+      - name: Update CHANGELOG.md
+        run: git cliff -o CHANGELOG.md
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add CHANGELOG.md
+          git diff --staged --quiet || git commit -m "docs: update CHANGELOG.md for ${{ github.ref_name }}"
+          git push

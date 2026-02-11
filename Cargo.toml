@@ -1,0 +1,22 @@
+[package]
+name = "github-guard"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+description = "Git & GitHub CLI Guard — prevent dangerous git/gh operations by AI agents"
+license = "MIT"
+repository = "https://github.com/noumi0k/gg"
+homepage = "https://github.com/noumi0k/gg"
+keywords = ["git", "github", "guard", "cli", "safety"]
+categories = ["command-line-utilities", "development-tools"]
+
+[[bin]]
+name = "gg"
+path = "src/main.rs"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+toml = "0.8"
+chrono = "0.4"
+dirs = "6"
+glob-match = "0.2"

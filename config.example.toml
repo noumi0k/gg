@@ -1,0 +1,118 @@
+# gg - Git & GitHub CLI Guard configuration
+#
+# Place this file at one of:
+#   ./gg.toml
+#   $GG_CONFIG
+#   ~/.config/gg/config.toml
+#   Platform config dir (~/Library/Application Support/gg/config.toml on macOS)
+#   ~/.gg.toml
+
+[options]
+log = true
+deny_by_default = true
+
+# When a command matches both [git] and [gh] rules, which takes priority
+priority = "git"
+
+# ── git rules ──────────────────────────────────────────────
+[git.rules]
+allow = [
+    "status*",
+    "log*",
+    "diff*",
+    "show*",
+    "branch*",
+    "stash list*",
+    "remote -v",
+    "config --get*",
+    "config --list*",
+    "blame*",
+    "reflog*",
+    "tag -l*",
+    "tag --list*",
+]
+
+confirm = [
+    "add*",
+    "commit*",
+    "push",
+    "push origin*",
+    "pull*",
+    "fetch*",
+    "checkout*",
+    "switch*",
+    "merge*",
+    "rebase*",
+    "stash*",
+    "tag*",
+    "remote add*",
+    "remote remove*",
+]
+
+deny = [
+    "push --force*",
+    "push -f*",
+    "reset --hard*",
+    "clean -f*",
+    "clean -fd*",
+    "clean -fx*",
+    "checkout -- .*",
+    "restore --source*",
+    "config --global*",
+    "config --system*",
+]
+
+# ── gh rules ───────────────────────────────────────────────
+[gh.rules]
+allow = [
+    "issue list*",
+    "issue view*",
+    "pr list*",
+    "pr view*",
+    "pr checks*",
+    "pr diff*",
+    "pr status*",
+    "repo list*",
+    "repo view*",
+    "release list*",
+    "release view*",
+    "run list*",
+    "run view*",
+    "api GET *",
+    "search *",
+    "status",
+    "auth status",
+]
+
+confirm = [
+    "pr create*",
+    "pr comment*",
+    "pr review*",
+    "pr edit*",
+    "pr ready*",
+    "issue create*",
+    "issue edit*",
+    "issue close*",
+    "issue comment*",
+    "release create*",
+    "api POST *",
+    "api PATCH *",
+    "api PUT *",
+]
+
+deny = [
+    "pr merge*",
+    "pr close*",
+    "repo create*",
+    "repo delete*",
+    "repo rename*",
+    "repo archive*",
+    "release delete*",
+    "api DELETE *",
+    "auth login*",
+    "auth logout*",
+    "ssh-key *",
+    "gpg-key *",
+    "secret *",
+    "variable *",
+]
